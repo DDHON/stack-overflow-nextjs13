@@ -1,3 +1,4 @@
+import React from "react";
 import Filter from "@/components/shared/Filter";
 import NoResult from "@/components/shared/NoResult";
 import QuestionCard from "@/components/shared/cards/QuestionCard";
