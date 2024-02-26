@@ -1,3 +1,4 @@
+import React from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 // eslint-disable-next-line
 import { Inter, Space_Grotesk } from "next/font/google";
