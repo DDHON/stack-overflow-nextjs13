@@ -4,8 +4,8 @@ export default authMiddleware({
   publicRoutes: [
     "/",
     "/api/webhook",
-    "question/:id",
-    "/tag",
+    "/question/:id",
+    "/tags",
     "/tags/:id",
     "/profile/:id",
     "/community",
@@ -15,5 +15,5 @@ export default authMiddleware({
 });
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };
