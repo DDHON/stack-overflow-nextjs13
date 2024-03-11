@@ -16,13 +16,15 @@ interface QuestionProps {
     name: string;
     picture: string;
   };
-  upvotes: number;
+  upvotes: string[];
   views: number;
   answers: Array<object>;
   createdAt: Date;
+  clerkId?: string | null;
 }
 
 const QuestionCard = ({
+  clerkId,
   _id,
   title,
   tags,
@@ -62,21 +64,21 @@ const QuestionCard = ({
           textStyles="body-medium text-dark400_light800"
         />
         <Metric
-          imgUrl="assets/icons/like.svg"
+          imgUrl="/assets/icons/like.svg"
           alt="Upvotes"
-          value={formatNumber(upvotes)}
+          value={formatNumber(upvotes.length)}
           title="Votes"
           textStyles="small-medium text-dark400_light800"
         />
         <Metric
-          imgUrl="assets/icons/message.svg"
+          imgUrl="/assets/icons/message.svg"
           alt="message"
           value={formatNumber(answers.length)}
           title="answers"
           textStyles="small-medium text-dark400_light800"
         />
         <Metric
-          imgUrl="assets/icons/eye.svg"
+          imgUrl="/assets/icons/eye.svg"
           alt="eye"
           value={formatNumber(views)}
           title="Views"

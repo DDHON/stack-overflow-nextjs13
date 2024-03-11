@@ -48,3 +48,11 @@ export const formatNumber = (num: number): string => {
     return num.toString();
   }
 };
+
+export const getJoinedDate = (date: Date): string => {
+  const options: Intl.DateTimeFormatOptions = {
+    month: "long",
+    year: "numeric",
+  };
+  return new Intl.DateTimeFormat("en-US", options).format(date);
+};
