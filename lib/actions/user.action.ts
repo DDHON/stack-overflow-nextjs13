@@ -211,7 +211,7 @@ export async function getUserAnswer(params: GetUserStatsParams) {
       .populate("question", "_id title")
       .populate("author", "_id clerkId name picture");
 
-    return { totalAnswers, Answer: userAnswers };
+    return { totalAnswers, answers: userAnswers };
     //   sdas
   } catch (error) {
     console.log(error);

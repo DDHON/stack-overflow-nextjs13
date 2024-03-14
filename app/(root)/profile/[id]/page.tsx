@@ -77,10 +77,10 @@ const Page = async ({ params, searchParams }: URLProps) => {
         totalAnswers={userInfo.totalAnswer}
       />
       <div className="mt-10 flex gap-10">
-        <Tabs defaultValue="top-post" className="flex-1">
+        <Tabs defaultValue="top-posts" className="flex-1">
           <TabsList className="background-light800_dark400 min-h-[42px]">
             <TabsTrigger value="top-posts" className="tab">
-              Question
+              Top Posts
             </TabsTrigger>
             <TabsTrigger value="answers" className="tab">
               Answers
