@@ -12,6 +12,7 @@ import Answer from "@/database/answer.model";
 
 import Interaction from "@/database/interaction.model";
 import { revalidatePath } from "next/cache";
+import User from "@/database/user.model";
 
 export async function createAnswer(params: CreateAnswerParams) {
   try {
@@ -26,12 +27,19 @@ export async function createAnswer(params: CreateAnswerParams) {
 
     // add the answer to the question
 
-    await Question.findByIdAndUpdate(question, {
+    const questionObject = await Question.findByIdAndUpdate(question, {
       $push: { answers: newAnswer._id },
     });
 
-    // TODO: Add interaction
+    await Interaction.create({
+      user: author,
+      action: "answer",
+      question,
+      answer: newAnswer._id,
+      tags: questionObject.tags,
+    });
 
+    await User.findByIdAndUpdate(author, { $inc: { reputation: 10 } });
     revalidatePath(path);
   } catch (error) {
     console.log(error);
@@ -44,12 +52,41 @@ export async function getAnswers(params: GetAnswersParams) {
   try {
     connectToDatabase();
 
-    const { questionId } = params;
+    const { questionId, sortBy, page = 1, pageSize = 10 } = params;
 
+    const skipAmount = (page - 1) * pageSize;
+
+    let sortOptions = {};
+
+    switch (sortBy) {
+      case "highestUpvotes":
+        sortOptions = { upvotes: -1 };
+        break;
+      case "lowestUpvotes":
+        sortOptions = { upvotes: 1 };
+        break;
+      case "recent":
+        sortOptions = { createdAt: -1 };
+        break;
+      case "old":
+        sortOptions = { createdAt: 1 };
+        break;
+
+      default:
+        break;
+    }
     const answers = await Answer.find({ question: questionId })
       .populate("author", "_id clerkId name picture")
-      .sort({ createdAt: -1 });
-    return { answers };
+      .skip(skipAmount)
+      .limit(pageSize)
+      .sort(sortOptions);
+
+    const totalAnswer = await Answer.countDocuments({
+      question: questionId,
+    });
+
+    const isNextAnswer = totalAnswer > skipAmount + answers.length;
+    return { answers, isNextAnswer };
   } catch (error) {
     console.log(error);
     throw error;
@@ -82,6 +119,14 @@ export async function upvoteAnswer(params: AnswerVoteParams) {
     }
 
     // increment author's reputation
+
+    await User.findByIdAndUpdate(userId, {
+      $inc: { reputation: hasupVoted ? -2 : 2 },
+    });
+
+    await User.findByIdAndUpdate(answer.author, {
+      $inc: { reputation: hasupVoted ? -10 : 10 },
+    });
     revalidatePath(path);
   } catch (error) {
     console.log(error);
@@ -115,6 +160,13 @@ export async function downvoteAnswer(params: AnswerVoteParams) {
     }
 
     // increment author's reputation
+    await User.findByIdAndUpdate(userId, {
+      $inc: { reputation: hasdownVoted ? -2 : 2 },
+    });
+
+    await User.findByIdAndUpdate(answer.author, {
+      $inc: { reputation: hasdownVoted ? -10 : 10 },
+    });
     revalidatePath(path);
   } catch (error) {
     console.log(error);

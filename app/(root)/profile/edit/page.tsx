@@ -1,11 +1,14 @@
 import Profile from "@/components/forms/Profile";
-import { getQuestionByID } from "@/lib/actions/question.action";
+// import { getQuestionById } from "@/lib/actions/question.action";
 import { getUserById } from "@/lib/actions/user.action";
 import { ParamsProps } from "@/types";
 import { auth } from "@clerk/nextjs";
 
 import React from "react";
-
+import { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "Edit Profile | Dev Overflow",
+};
 const Page = async ({ params }: ParamsProps) => {
   const { userId } = auth();
 
@@ -13,7 +16,7 @@ const Page = async ({ params }: ParamsProps) => {
 
   const mongoUser = await getUserById({ userId });
 
-  const result = await getQuestionByID({ questionId: params.id });
+  // const result = await getQuestionById({ questionId: params.id });
   return (
     <>
       <h1 className="h1-bold text-dark100_light900">Edit Profile</h1>

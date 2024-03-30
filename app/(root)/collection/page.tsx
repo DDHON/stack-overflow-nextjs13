@@ -6,13 +6,22 @@ import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 import { getSavedQuestion } from "@/lib/actions/user.action";
 import { QuestionFilters } from "@/constants/filters";
 import { auth } from "@clerk/nextjs";
+import { SearchParamsProps } from "@/types";
+import Pagination from "@/components/shared/Pagination";
+import { Metadata } from "next";
 
-export default async function Home() {
+export const metadata: Metadata = {
+  title: "Collection | Dev Overflow",
+};
+export default async function Home({ searchParams }: SearchParamsProps) {
   const { userId } = auth();
 
   if (!userId) return null;
   const result = await getSavedQuestion({
     clerkId: userId,
+    searchQuery: searchParams.q,
+    filter: searchParams.filter,
+    page: searchParams.page ? +searchParams.page : 1,
   });
 
   return (
@@ -21,7 +30,7 @@ export default async function Home() {
 
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearchbar
-          route="/"
+          route="/collection"
           iconPosition="left"
           imgSrc="/assets/icons/search.svg"
           placeholder="Search for questions"
@@ -30,7 +39,7 @@ export default async function Home() {
         <Filter
           filters={QuestionFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
-          containerClasses="hidden max-md:flex"
+          // containerClasses=" max-md:flex"
         />
       </div>
 
@@ -59,6 +68,12 @@ export default async function Home() {
             linkTitle="Ask a Questions"
           />
         )}
+      </div>
+      <div className=" mt-10">
+        <Pagination
+          pageNumber={searchParams?.page ? +searchParams.page : 1}
+          isNext={result.isNext}
+        />
       </div>
     </>
   );

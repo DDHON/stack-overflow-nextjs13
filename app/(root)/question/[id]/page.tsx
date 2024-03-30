@@ -4,7 +4,7 @@ import Metric from "@/components/shared/Metric";
 import ParseHTML from "@/components/shared/ParseHTML";
 import RenderTag from "@/components/shared/RenderTag";
 import Votes from "@/components/shared/Votes";
-import { getQuestionByID } from "@/lib/actions/question.action";
+import { getQuestionById } from "@/lib/actions/question.action";
 import { getUserById } from "@/lib/actions/user.action";
 import { formatNumber, getTimestamp } from "@/lib/utils";
 import { auth } from "@clerk/nextjs";
@@ -12,7 +12,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 import React from "react";
-
+import { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "Question | Dev Overflow",
+};
 const Page = async ({ params, searchParams }: any) => {
   const { userId: clerkId } = auth();
   let mongoUser;
@@ -20,7 +23,7 @@ const Page = async ({ params, searchParams }: any) => {
   if (clerkId) {
     mongoUser = await getUserById({ userId: clerkId });
   }
-  const result = await getQuestionByID({ questionId: params.id });
+  const result = await getQuestionById({ questionId: params.id });
   return (
     <>
       <div className="flex-start w-full flex-col">
@@ -97,6 +100,8 @@ const Page = async ({ params, searchParams }: any) => {
         questionId={result._id}
         userId={mongoUser._id}
         totalAnswers={result.answers.length}
+        page={searchParams.page}
+        filter={searchParams?.filter}
       />
       <Answer
         question={result.content}

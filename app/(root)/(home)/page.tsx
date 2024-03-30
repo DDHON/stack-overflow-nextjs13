@@ -1,20 +1,52 @@
 import React from "react";
-import Filter from "@/components/shared/Filter";
+
 import NoResult from "@/components/shared/NoResult";
 import QuestionCard from "@/components/shared/cards/QuestionCard";
 import HomeFilters from "@/components/shared/home/HomeFilters";
 
 import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 import { Button } from "@/components/ui/button";
-import { HomePageFilters } from "@/constants/filters";
-import { getQuestions } from "@/lib/actions/question.action";
+
+import {
+  getQuestions,
+  getRecommendedQuestions,
+} from "@/lib/actions/question.action";
 
 import Link from "next/link";
+import { SearchParamsProps } from "@/types";
+import Pagination from "@/components/shared/Pagination";
+import type { Metadata } from "next";
+import { auth } from "@clerk/nextjs";
 
-export default async function Home() {
-  const result = await getQuestions({});
+export const metadata: Metadata = {
+  title: "Home | Dev Overflow",
+};
+export default async function Home({ searchParams }: SearchParamsProps) {
+  const { userId } = auth();
+  let result;
+  if (searchParams?.filter === "recommended") {
+    if (userId) {
+      result = await getRecommendedQuestions({
+        userId,
+        searchQuery: searchParams.q,
 
-  // console.log(result.questions);
+        page: searchParams.page ? +searchParams.page : 1,
+      });
+    } else {
+      result = {
+        question: [],
+        isNext: false,
+      };
+    }
+  } else {
+    result = await getQuestions({
+      searchQuery: searchParams.q,
+      filter: searchParams.filter,
+      page: searchParams.page ? +searchParams.page : 1,
+    });
+  }
+  // fetch recomended
+
   return (
     <>
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
@@ -32,11 +64,6 @@ export default async function Home() {
           imgSrc="/assets/icons/search.svg"
           placeholder="Search for questions"
           otherClasses="flex-1"
-        />
-        <Filter
-          filters={HomePageFilters}
-          otherClasses="min-h-[56px] sm:min-w-[170px]"
-          containerClasses="hidden max-md:flex"
         />
       </div>
       <HomeFilters />
@@ -65,6 +92,12 @@ export default async function Home() {
             linkTitle="Ask a Questions"
           />
         )}
+      </div>
+      <div className=" mt-10">
+        <Pagination
+          pageNumber={searchParams?.page ? +searchParams.page : 1}
+          isNext={result.isNext}
+        />
       </div>
     </>
   );
